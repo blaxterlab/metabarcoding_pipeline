@@ -12,11 +12,14 @@ These notes describe a workflow for the analysis of paired-end metabarcode seque
 These notes describe the protocol I use to analyse MiSeq metabarcoding data. My experience is largely with nSSU/eukaryotic metabarcoding, though we have also analysed bacterial 16S v3/v4 data. These approaches should also work well with other metabarcoding targets, as long as the data generated result in overlapping sequence reads.
 
 ## SETUP
-usearch  
+
+### usearch 
+
 This protocol uses usearch. See http://drive5.com.  
 The “free to academics” version of usearch (the 32 bit one) cannot process large files (as in more than a few Gb) and so if you want to use this version you will have to do some operations using a split dataset. The effects of doing this (apart from the annoyance) are minimal as far as I have been able to establish. If you plan to do a lot of analyses, it may be an idea to purchase the academic licence for the 64-bit version. I like the 64-bit version a lot.
 
-FastQC  
+### FastQC
+
 FastQC is a nice graphical (java) tool that assesses the quality of next generation read datasets. It is not essential for this protocol, but because of its visualisations, is quite useful. usearch also has routines for data QC. You can run FastQC in a fully GUI mode, or from the command line. The command line lets you specify alternate parameters, which is good for assessment of long read data (such as 250 b or 300 b MiSeq).  
 Download FastQC from http://www.bioinformatics.babraham.ac.uk/projects/fastqc/
 
@@ -33,7 +36,7 @@ You may need to specify the full path to the programs (“executables”).
 
 The workflow starts when you have your raw data back from the facility in fastq format, split, based on the MIDs, into sample subsets.
 
-STEP 1: RENAME THE FILES
+## STEP 1: RENAME THE FILES
 
 The files will come back with a naming scheme that is dependent on the facility standard operating procedure. Its useful to rename these files to something you understand, and that is easier to remember and type.
 
@@ -41,7 +44,7 @@ You can do this in the operating system GUI, or by using the UNIX mv command. I 
 
 The raw paired end reads will probably come in separate files, called something like your_reads_1_1.sanfastq and your_reads_1_2.sanfastq, where your_reads_1 is the sample name. They may be delivered compressed (e.g. your_reads_1.sanfastq.gz). If so just decompress them with the relevant command or program (in many operating systems, double clicking on a compressed file will launch the decompression utility).
 
-STEP 2: RAW DATA QC
+## STEP 2: RAW DATA QC
 
 Run fastqc on each sample. They should all look the same but its good to check.
 
@@ -147,22 +150,27 @@ We remove sequences matching phiX from the fasta file using a perl script (see b
 
 The reads are now mapped back to your reference set, and reads per unique reference sequence counted. If you have the 32-bit version of usearch it is likely you will have to do this in batches. The batches can be larger than those used previously. Obviously, if you have the 64-bit version, you can map many more reads at once.
 
-# do mapping 1
+### do mapping 1
 
     usearch -usearch_global your_reads_merged_l_1234.fasta -db your_reads_merged_l_u_s_c99_m2_otus_r_nx.fasta -strand plus -id 0.97 -uc your_reads_merged_uniques_l_u_s_c99_m2_otus_r_nx.map.uc
 
-# turn mapping1 into table
+### turn mapping1 into table
 
     python ../usearch/python/uc2otutab.py your_reads_merged_uniques_l_u_s_c99_m2_otus_r_nx.map.uc  > your_reads_merged_l_u_s_c99_m2_otus_r_nx.otu_table.txt
 
-# do mapping 2
+### do mapping 2
 
     usearch -usearch_global your_reads_merged_l_5678.fasta -db your_reads_merged_l_u_s_c99_m2_otus_r_nx.fasta -strand plus -id 0.97 -uc your_reads_merged_uniques_l_u_s_c99_m2_otus_r_nx2.map.uc
 
-# turn mapping2 into table
+### turn mapping2 into table
 
     python ../usearch/python/uc2otutab.py your_reads_merged_uniques_l_u_s_c99_m2_otus_r_nx2.map.uc  > your_reads_merged_l_u_s_c99_m2_otus_r_nx2.otu_table.txt
 
-# merge tables
+And so on until you have completed the mapping process for all reads. Then you need to merge the output tables into one:
+
+### merge tables
 
     usearch_table_merger.pl your_reads_merged_l_u_s_c99_m2_otus_r_nx.fasta your_reads_merged_l_u_s_c99_m2_otus_r_nx.otu_table.txt your_reads_merged_l_u_s_c99_m2_otus_r_nx2.otu_table.txt your_reads_merged_l_u_s_c99_m2_otus_r_nx_all.otu_table.txt
+    
+The final output is a text file that you can view and process in your favourite spreadsheet analysis tool.
+
