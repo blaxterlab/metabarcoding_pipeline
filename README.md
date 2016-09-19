@@ -6,6 +6,8 @@ Mark Blaxter
 mark.blaxter@ed.ac.uk  
 version 1.1 September 2014
 
+If you use this pipeline, please cite as [![DOI](https://zenodo.org/badge/68611953.svg)](https://zenodo.org/badge/latestdoi/68611953)
+
 ## PURPOSE
 These notes describe a workflow for the analysis of paired-end metabarcode sequence data using the usearch programme/suite of programmes. The flow is presented as a series of “disconnected” commands, but, rather obviously, these could be chained together to form a single script using shell or other scripting approaches. The process results in a dataset that is ready for ecological/community analysis (an “OTU table”).
 
